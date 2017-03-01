@@ -34,6 +34,9 @@ class AwsS3
         rescue Errno::ETIMEDOUT => e
             retry if counter < 3
             raise
+        rescue StandardError => e
+            puts("#{e.class}\n#{e.message}")
+            raise
         ensure
             puts("AWS Region: #{@aws_region}, S3 bucket: #{@s3_bucket}")
         end
@@ -61,6 +64,9 @@ class AwsS3
         rescue Errno::ETIMEDOUT => e
             retry if counter < 3
             raise
+        rescue StandardError => e
+            puts("#{e.class}\n#{e.message}")
+            raise
         ensure
             puts("AWS Region: #{@aws_region}, Local path: #{@local_path}, S3 path: #{@s3_bucket}/#{@s3_key}")
         end
@@ -85,6 +91,9 @@ class AwsS3
             })
         rescue Errno::ETIMEDOUT => e
             retry if counter < 3
+            raise
+        rescue StandardError => e
+            puts("#{e.class}\n#{e.message}")
             raise
         ensure
             puts("AWS Region: #{@aws_region}, S3 path: #{@s3_bucket}/#{@s3_key}, Local path: #{@local_path}")
