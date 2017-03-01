@@ -21,7 +21,7 @@ class AwsS3
         counter = 0
 
         begin
-            count += 1
+            counter += 1
             s3.create_bucket(
                 {
                     acl: "private",
