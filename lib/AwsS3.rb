@@ -16,7 +16,7 @@ class AwsS3
 
         raise ArgumentError.new(
             "For an S3 bucket to be created, the name of the bucket and the AWS region need to be defined."
-        ) if @s3_bucket.nil?
+        ) if @s3_bucket.empty?
 
         counter = 0
 
@@ -43,7 +43,7 @@ class AwsS3
 
         raise ArgumentError.new(
             "To upload a resource on S3 the name of the S3 bucket, S3 key and the full path to the local resource need to be specified."
-        ) if @local_path.nil? || @s3_bucket.nil? || @s3_key.nil?
+        ) if @local_path.empty? || @s3_bucket.empty? || @s3_key.empty?
 
         counter = 0
 
@@ -71,7 +71,7 @@ class AwsS3
 
         raise ArgumentError.new(
             "To download a resource from S3, the name of the S3 bucket, S3 key and the full local path where the resource is going to be stored need to be specified."
-        ) if @local_path.nil? || @s3_bucket.nil? || @s3_key.nil?
+        ) if @local_path.empty? || @s3_bucket.empty? || @s3_key.empty?
 
         counter = 0
 
