@@ -1,23 +1,36 @@
 require './lib/AwsS3'
-require 'micro-optparse'
+require 'getoptlong'
 
-options = Parser.new do |p|
-    p.banner = "Simple script to interact with AWS S3."
-    p.version = "v0.0.1"
-    p.option :action, "Should be one of [upload, download, create_bucket]", :default => "", :value_in_set => ["upload", "download", "create_bucket"]
-    p.option :aws_profile, "The AWS profile to be used (from ~/.aws/credentials)", :default => "", :short => "p"
-    p.option :aws_region, "AWS region to be used", :default => "", :short => "r"
-    p.option :s3_bucket, "Name of the S3 bucket you want to use or create", :default => "", :short => "b"
-    p.option :s3_key, "S3 key name. Specify if you uploading/downloading to/from S3", :default => "", :short => "k"
-    p.option :local_path, "Full path of the resource to be uploaded/downloaded to/from S3", :default => "", :short => "P"
-end.process!
+opts = GetoptLong.new(
+    ['--action', '-a', GetoptLong::REQUIRED_ARGUMENT],
+    ['--aws-profile', '-i', GetoptLong::REQUIRED_ARGUMENT],
+    ['--aws-region', '-r', GetoptLong::REQUIRED_ARGUMENT],
+    ['--s3-bucket', '-b', GetoptLong::REQUIRED_ARGUMENT],
+    ['--s3-key', '-k', GetoptLong::REQUIRED_ARGUMENT],
+    ['--local-path', '-p', GetoptLong::REQUIRED_ARGUMENT],
+    [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
+)
 
-action = options[:action]
-aws_profile = options[:aws_profile]
-aws_region = options[:aws_region]
-s3_bucket = options[:s3_bucket]
-s3_key = options[:s3_key]
-local_path = options[:local_path]
+action, aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
+
+opts.each do |opt, arg|
+    case opt
+    when '--help'
+        help()
+    when '--action', '-a'
+        action = arg
+    when '--aws-profile', '-i'
+        aws_profile = arg
+    when '--aws-region', '-r'
+        aws_region = arg
+    when '--s3-bucket', '-b'
+        s3_bucket = arg
+    when '--s3-key', '-k'
+        s3_key = arg
+    when '--local-path', '-p'
+        local_path = arg
+    end
+end
 
 s3 = AwsS3.new(
     aws_profile: aws_profile,
@@ -34,4 +47,44 @@ begin
 rescue StandardError.new("Something went wrong...") => e
     puts("#{e.class}\n#{e.message}")
     raise
+end
+
+def help
+    puts <<-EOF
+    Usage: ruby s3.rb [OPTION]=[VALUE] ...
+
+    OPTIONS
+
+        --action, -a
+                One of [upload, download, create].
+                upload  : upload a resource on S3. To be used alongside --aws_profile, --aws_region, --s3-bucket, --s3-key, --local-path.
+                download: download a resource from S3. To be used alongside --aws_profile, --aws_region, --s3-bucket, --s3-key, --local-path.
+                create  : create an S3 bucket. To be used alongside --aws-profile, --aws-region, --s3-bucket
+
+        --aws-profile, -i
+                This is the name of the IAM role listed in the shared credentials file (~/.aws/credentials).
+
+        --aws-region, -r
+                The AWS region where the S3 resource will be uploaded (--action=upload), downloaded (--action=download) from, or the region
+                where the S3 bucket is going to be created (--action=create).
+
+        --s3-bucket, -b
+                The name of the S3 bucket that will be used (--action=upload or --action=download), or be created (--action=create).
+
+        --s3-key, -k
+                The name of the resource to be uploaded (--action=upload) or downloaded (--action=download) form the S3 bucket specified (--s3-bucket).
+
+        --local-path, -p
+                The local path to the resource you wish to upload (--action=upload) to an S3 bucket, or the local path where you wish to download (--action=download)
+                from an S3 bucket. The S3 bucket is specified with --s3-bucket in both cases.
+
+        --help, -h
+                Print this help message
+
+    AUTHOR / CONTRIBUTORS
+        synbit
+
+    SOURCE
+        https://github.com/synbit/aws
+    EOF
 end
