@@ -2,13 +2,14 @@ class AwsS3
 
     require 'aws-sdk'
 
-    attr_accessor :aws_profile, :aws_region, :s3_bucket, :s3_key, :local_path
+    attr_accessor :aws_profile, :aws_region, :s3_bucket, :s3_key, :s3_path, :local_path
 
-    def initialize(aws_profile: nil, aws_region: nil, s3_bucket: nil, s3_key: nil, local_path: nil)
+    def initialize(aws_profile: nil, aws_region: nil, s3_bucket: nil, s3_key: nil, s3_path: nil, local_path: nil)
         @aws_profile = aws_profile
         @aws_region = aws_region
         @s3_bucket = s3_bucket
         @s3_key = s3_key
+        @s3_path = s3_path
         @local_path = local_path
     end
 
@@ -98,6 +99,49 @@ class AwsS3
             raise
         ensure
             puts("AWS Region: #{@aws_region}, S3 path: #{@s3_bucket}/#{@s3_key}, Local path: #{@local_path}")
+        end
+
+    end
+
+    def download_last_modified
+
+        if (@local_path.empty? || @s3_path.empty?) then
+            abort("Source (full S3 path) and destination (local path) need to be specified in order to download the latest key from an S3 bucket.")
+        end
+
+        files = {}
+        counter = 0
+        bucket, key_prefix, latest = nil
+        bucket, key_prefix = @s3_path.split("/", 2)
+
+        s3 = s3_client
+        s3.list_objects_v2({
+            bucket: bucket
+        }).contents.each do |k|
+            files[k.last_modified] = k.key
+        end
+
+        files.sort.reverse.to_h.each do |time, file|
+            latest = file if file =~ /#{key_prefix}/;
+            break
+        end
+
+        begin
+            counter += 1
+            s3 = s3_client
+            s3.get_object({
+                response_target: @local_path,
+                bucket: bucket,
+                key: latest
+            })
+        rescue Errno::ETIMEDOUT => e
+            retry if counter < 3
+            raise
+        rescue StandardError => e
+            puts("#{e.class}\n#{e.message}")
+            raise
+        ensure
+            puts("AWS Region: #{@aws_region}, S3 path: #{bucket}/#{latest}, Local path: #{@local_path}")
         end
 
     end

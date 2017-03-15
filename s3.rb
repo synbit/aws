@@ -47,11 +47,13 @@ opts = GetoptLong.new(
     ['--aws-region', '-r', GetoptLong::REQUIRED_ARGUMENT],
     ['--s3-bucket', '-b', GetoptLong::REQUIRED_ARGUMENT],
     ['--s3-key', '-k', GetoptLong::REQUIRED_ARGUMENT],
+    ['--s3-path', '-s', GetoptLong::REQUIRED_ARGUMENT],
     ['--local-path', '-p', GetoptLong::REQUIRED_ARGUMENT],
+    ['--get-latest', '-l', GetoptLong::NO_ARGUMENT],
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
 
-action, aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
+action, aws_profile, aws_region, s3_bucket, s3_key, local_path, s3_path, get_latest = nil
 
 opts.each do |opt, arg|
     case opt
@@ -67,13 +69,17 @@ opts.each do |opt, arg|
         s3_bucket = arg
     when '--s3-key', '-k'
         s3_key = arg
+    when '--s3-path', '-s'
+        s3_path = arg
     when '--local-path', '-p'
         local_path = arg
+    when '--get-latest', '-l'
+        get_latest = true
     end
 end
 
-if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? && s3_key.nil? && local_path.nil?)
-    puts("No argument provided...")
+if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? && s3_key.nil? && local_path.nil? && s3_path.nil? && !get_latest)
+    puts("No arguments provided...")
     help()
 end
 
@@ -82,12 +88,14 @@ s3 = AwsS3.new(
     aws_region: aws_region,
     s3_bucket: s3_bucket,
     s3_key: s3_key,
+    s3_path: s3_path,
     local_path: local_path
 )
 
 begin
     action === "upload" && s3.upload && puts("Upload successful!")
     action === "download" && s3.download && puts("Download successful!")
+    get_latest && s3_path && s3.download_last_modified && puts("Download successful!")
     action === "create_bucket" && s3.create_bucket && puts("S3 bucket created successfully!")
 rescue StandardError.new("Something went wrong...") => e
     puts("#{e.class}\n#{e.message}")
