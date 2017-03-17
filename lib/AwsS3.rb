@@ -122,8 +122,10 @@ class AwsS3
         end
 
         files.sort.reverse.to_h.each do |time, file|
-            latest = file if file =~ /#{key_prefix}/;
-            break
+            if (file =~ /#{key_prefix}/)
+                latest = file
+                break
+            end
         end
 
         begin

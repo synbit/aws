@@ -23,6 +23,10 @@ OPTIONS
     --s3-bucket, -b
             The name of the S3 bucket that will be used (--action=upload or --action=download), or be created (--action=create).
 
+    --s3-path, -s
+            The S3 bucket and path to download the latest file from. This option only requires --aws-region and --aws-profile in order to work. The name of
+            the file does not need to be known in advance.
+
     --s3-key, -k
             The name of the resource to be uploaded (--action=upload) or downloaded (--action=download) form the S3 bucket specified (--s3-bucket).
 
@@ -49,11 +53,10 @@ opts = GetoptLong.new(
     ['--s3-key', '-k', GetoptLong::REQUIRED_ARGUMENT],
     ['--s3-path', '-s', GetoptLong::REQUIRED_ARGUMENT],
     ['--local-path', '-p', GetoptLong::REQUIRED_ARGUMENT],
-    ['--get-latest', '-l', GetoptLong::NO_ARGUMENT],
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
 
-action, aws_profile, aws_region, s3_bucket, s3_key, local_path, s3_path, get_latest = nil
+action, aws_profile, aws_region, s3_bucket, s3_key, s3_path, local_path = nil
 
 opts.each do |opt, arg|
     case opt
@@ -73,12 +76,11 @@ opts.each do |opt, arg|
         s3_path = arg
     when '--local-path', '-p'
         local_path = arg
-    when '--get-latest', '-l'
-        get_latest = true
     end
 end
 
-if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? && s3_key.nil? && local_path.nil? && s3_path.nil? && !get_latest)
+if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? \
+    && s3_key.nil? && local_path.nil? && s3_path.nil?)
     puts("No arguments provided...")
     help()
 end
@@ -95,7 +97,7 @@ s3 = AwsS3.new(
 begin
     action === "upload" && s3.upload && puts("Upload successful!")
     action === "download" && s3.download && puts("Download successful!")
-    get_latest && s3_path && s3.download_last_modified && puts("Download successful!")
+    s3_path && local_path && s3.download_last_modified && puts("Download successful!")
     action === "create_bucket" && s3.create_bucket && puts("S3 bucket created successfully!")
 rescue StandardError.new("Something went wrong...") => e
     puts("#{e.class}\n#{e.message}")
