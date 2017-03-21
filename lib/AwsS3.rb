@@ -78,7 +78,7 @@ class AwsS3
     def download(key, path)
 
         if (key.nil? || path.nil?)
-            abort("Bucket name, key and local path are needed in order to download a key from S3.")
+            abort("Missing mandatory arguments: S3 key, local path.\nDownload aborted.")
         end
 
         bucket, s3_key = key.split("/", 2)
@@ -92,12 +92,13 @@ class AwsS3
                 bucket: bucket,
                 key: s3_key
             })
+            puts("Download successful.")
         rescue Errno::ETIMEDOUT => e
             retry if counter < 3
             raise
         rescue Aws::S3::Errors::NoSuchKey => e
-            puts("#{e.class}\n#{e.message}")
-            puts("Encountered 'NoSuchKey' exception, assuming this was deliberate.\nDownloading the latest key from the specified bucket...")
+            puts("Encountered the following exception:\n\t#{e.class}\n\t#{e.message}")
+            puts("Assuming a key was deliberate not specified.\nDownloading the latest key from the specified bucket.")
             puts("If this is not desired, cancel now; download will begin in a few seconds...")
             sleep(3)
             files = {}
@@ -121,19 +122,20 @@ class AwsS3
                 counter += 1
                 s3 = s3_client
                 s3.get_object({
-                    response_target: @local_path,
+                    response_target: path,
                     bucket: bucket,
                     key: latest
                 })
+                puts("Download successful.")
             rescue Errno::ETIMEDOUT => e
                 retry if counter < 3
                 raise
             rescue StandardError => e
-                puts("#{e.class}\n#{e.message}")
+                puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
                 raise
             end
         rescue StandardError => e
-            puts("#{e.class}\n#{e.message}")
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
             raise
         ensure
             puts("Region => #{@aws_region},\nKey => #{key},\nPath => #{path}")

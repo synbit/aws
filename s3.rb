@@ -95,7 +95,7 @@ s3 = AwsS3.new(
 )
 
 begin
-    s3.download(s3_key, local_path) && puts("Download successful.")
+    s3.download(s3_key, local_path)
     action === "upload" && s3.upload && puts("Upload successful!")
     action === "create_bucket" && s3.create_bucket && puts("S3 bucket created successfully!")
 rescue StandardError.new("Something went wrong...") => e
