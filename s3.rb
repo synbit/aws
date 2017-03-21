@@ -51,7 +51,7 @@ opts = GetoptLong.new(
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
 
-action, aws_profile, aws_region, s3_bucket, s3_key, s3_path, local_path = nil
+action, aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
 
 opts.each do |opt, arg|
     case opt
