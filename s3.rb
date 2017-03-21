@@ -7,11 +7,14 @@ Usage: ruby s3.rb [OPTION]=[VALUE] ...
 
 OPTIONS
 
-    --action, -a
-            One of [upload, download, create].
-            upload  : upload a resource on S3. To be used alongside --aws_profile, --aws_region, --s3-bucket, --s3-key, --local-path.
-            download: download a resource from S3. To be used alongside --aws_profile, --aws_region, --s3-bucket, --s3-key, --local-path.
-            create  : create an S3 bucket. To be used alongside --aws-profile, --aws-region, --s3-bucket
+    --download, -d
+            Flag to indicate that you wish to download the specified key, using --s3-key to the specified local path by --local-path.
+
+    --upload, -u
+            Flag to indicate that you wish to upload the specified resource, using --local-path to the specified S3 bucket, using --s3-key.
+
+    --create-bucket, -c
+            Flag to indicate that you wish to create a bucket, specified using --s3-bucket, in the region specified by --aws-region.
 
     --aws-profile, -i
             This is the name of the IAM role listed in the shared credentials file (~/.aws/credentials).
@@ -42,7 +45,9 @@ SOURCE
 end
 
 opts = GetoptLong.new(
-    ['--action', '-a', GetoptLong::REQUIRED_ARGUMENT],
+    ['--upload', '-u', GetoptLong::NO_ARGUMENT],
+    ['--download', '-d', GetoptLong::NO_ARGUMENT],
+    ['--create-bucket', '-c', GetoptLong::NO_ARGUMENT],
     ['--aws-profile', '-i', GetoptLong::REQUIRED_ARGUMENT],
     ['--aws-region', '-r', GetoptLong::REQUIRED_ARGUMENT],
     ['--s3-bucket', '-b', GetoptLong::REQUIRED_ARGUMENT],
@@ -51,14 +56,18 @@ opts = GetoptLong.new(
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
 
-action, aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
+upload, download, create_bucket, aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
 
 opts.each do |opt, arg|
     case opt
     when '--help', '-h'
         help()
-    when '--action', '-a'
-        action = arg
+    when '--upload', '-u'
+        upload = true
+    when '--download', '-d'
+        download = true
+    when '--create-bucket', '-c'
+        create_bucket = true
     when '--aws-profile', '-i'
         aws_profile = arg
     when '--aws-region', '-r'
@@ -72,7 +81,7 @@ opts.each do |opt, arg|
     end
 end
 
-if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? && s3_key.nil? && local_path.nil?)
+if (aws_profile.nil? && aws_region.nil? && s3_bucket.nil? && s3_key.nil? && local_path.nil?)
     puts("No arguments provided...")
     help()
 end
@@ -86,9 +95,8 @@ s3 = AwsS3.new(
 )
 
 begin
-    s3.download(s3_key, local_path)
-    action === "upload" && s3.upload && puts("Upload successful!")
-    action === "create_bucket" && s3.create_bucket && puts("S3 bucket created successfully!")
+    download && s3.download(s3_key, local_path) || abort(help())
+    upload && s3.upload(local_path, s3_key) || abort(help())
 rescue StandardError.new("Something went wrong...") => e
     puts("#{e.class}\n#{e.message}")
     raise
