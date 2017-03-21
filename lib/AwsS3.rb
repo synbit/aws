@@ -43,25 +43,27 @@ class AwsS3
         end
     end
 
-    def upload
+    def upload(path, key)
 
-        if (@local_path.empty? || @s3_bucket.empty? || @s3_key.empty?) then
-            abort("To upload a resource on S3 the name of the S3 bucket, S3 key and the full path to the local resource need to be specified.")
+        if (key.nil? || path.nil?)
+            abort("Missing mandatory argument(s): S3 key, local path.\nUpload aborted.")
         end
 
+        bucket, s3_key = key.split("/", 2)
         counter = 0
 
         begin
             counter += 1
             s3 = s3_client
-            File.open(@local_path, "rb") do |file|
+            File.open(path, "rb") do |file|
                 s3.put_object(
-                    bucket: @s3_bucket,
-                    key: @s3_key,
+                    bucket: bucket,
+                    key: s3_key,
                     body: file,
                     server_side_encryption: "AES256"
                 )
             end
+            puts("Upload completed.")
         rescue Errno::ETIMEDOUT => e
             retry if counter < 3
             raise
@@ -69,7 +71,7 @@ class AwsS3
             puts("#{e.class}\n#{e.message}")
             raise
         ensure
-            puts("AWS Region: #{@aws_region}, Local path: #{@local_path}, S3 path: #{@s3_bucket}/#{@s3_key}")
+            puts("Region => #{@aws_region},\nKey => #{key},\nPath => #{path}")
         end
 
     end
@@ -77,7 +79,7 @@ class AwsS3
     def download(key, path)
 
         if (key.nil? || path.nil?)
-            abort("Missing mandatory arguments: S3 key, local path.\nDownload aborted.")
+            abort("Missing mandatory argument(s): S3 key, local path.\nDownload aborted.")
         end
 
         bucket, s3_key = key.split("/", 2)
