@@ -82,7 +82,6 @@ s3 = AwsS3.new(
     aws_region: aws_region,
     s3_bucket: s3_bucket,
     s3_key: s3_key,
-    s3_path: s3_path,
     local_path: local_path
 )
 
