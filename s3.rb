@@ -21,11 +21,7 @@ OPTIONS
             where the S3 bucket is going to be created (--action=create).
 
     --s3-bucket, -b
-            The name of the S3 bucket that will be used (--action=upload or --action=download), or be created (--action=create).
-
-    --s3-path, -s
-            The S3 bucket and path to download the latest file from. This option only requires --aws-region and --aws-profile in order to work. The name of
-            the file does not need to be known in advance.
+            The name of the S3 bucket to be created (--action=create).
 
     --s3-key, -k
             The name of the resource to be uploaded (--action=upload) or downloaded (--action=download) form the S3 bucket specified (--s3-bucket).
@@ -51,7 +47,6 @@ opts = GetoptLong.new(
     ['--aws-region', '-r', GetoptLong::REQUIRED_ARGUMENT],
     ['--s3-bucket', '-b', GetoptLong::REQUIRED_ARGUMENT],
     ['--s3-key', '-k', GetoptLong::REQUIRED_ARGUMENT],
-    ['--s3-path', '-s', GetoptLong::REQUIRED_ARGUMENT],
     ['--local-path', '-p', GetoptLong::REQUIRED_ARGUMENT],
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
@@ -72,15 +67,12 @@ opts.each do |opt, arg|
         s3_bucket = arg
     when '--s3-key', '-k'
         s3_key = arg
-    when '--s3-path', '-s'
-        s3_path = arg
     when '--local-path', '-p'
         local_path = arg
     end
 end
 
-if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? \
-    && s3_key.nil? && local_path.nil? && s3_path.nil?)
+if (action.nil? && aws_profile.nil? && aws_region.nil? && s3_bucket.nil? && s3_key.nil? && local_path.nil?)
     puts("No arguments provided...")
     help()
 end
