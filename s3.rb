@@ -56,7 +56,8 @@ opts = GetoptLong.new(
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
 
-upload, download, create_bucket, aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
+upload, download, create_bucket = false
+aws_profile, aws_region, s3_bucket, s3_key, local_path = nil
 
 opts.each do |opt, arg|
     case opt
@@ -95,8 +96,8 @@ s3 = AwsS3.new(
 )
 
 begin
-    download && s3.download(s3_key, local_path) || abort(help())
-    upload && s3.upload(local_path, s3_key) || abort(help())
+    download && s3.download(s3_key, local_path)
+    upload && s3.upload(local_path, s3_key)
 rescue StandardError.new("Something went wrong...") => e
     puts("#{e.class}\n#{e.message}")
     raise
