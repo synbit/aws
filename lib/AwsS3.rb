@@ -12,10 +12,10 @@ class AwsS3
         @local_path = local_path
     end
 
-    def create_bucket
+    def create_bucket(bucket_name, region)
 
-        if (@s3_bucket.empty?) then
-            abort("For an S3 bucket to be created, the name of the bucket and the AWS region need to be defined.")
+        if (bucket_name.nil? || region.nil?)
+            abort("Missing mandatory argument(s): bucket name, region.\nBucket creation aborted.")
         end
 
         counter = 0
@@ -26,12 +26,13 @@ class AwsS3
             s3.create_bucket(
                 {
                     acl: "private",
-                    bucket: @s3_bucket,
+                    bucket: bucket_name,
                     create_bucket_configuration: {
-                            location_constraint: @aws_region
+                            location_constraint: region
                     }
                 }
             )
+            puts("Bucket '#{bucket_name}' created successfully in '#{region}'.")
         rescue Errno::ETIMEDOUT => e
             retry if counter < 3
             raise
@@ -39,7 +40,7 @@ class AwsS3
             puts("#{e.class}\n#{e.message}")
             raise
         ensure
-            puts("AWS Region: #{@aws_region}, S3 bucket: #{@s3_bucket}")
+            puts("Region => #{region},\nBucket => #{bucket_name}")
         end
     end
 
