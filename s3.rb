@@ -98,6 +98,7 @@ s3 = AwsS3.new(
 begin
     download && s3.download(s3_key, local_path)
     upload && s3.upload(local_path, s3_key)
+    create_bucket && s3.create_bucket(s3_bucket, aws_region)
 rescue StandardError.new("Something went wrong...") => e
     puts("#{e.class}\n#{e.message}")
     raise
