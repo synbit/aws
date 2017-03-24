@@ -37,7 +37,7 @@ class AwsS3
             retry if counter < 3
             raise
         rescue StandardError => e
-            puts("#{e.class}\n#{e.message}")
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
             raise
         ensure
             puts("Region => #{region},\nBucket => #{bucket_name}")
@@ -69,7 +69,7 @@ class AwsS3
             retry if counter < 3
             raise
         rescue StandardError => e
-            puts("#{e.class}\n#{e.message}")
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
             raise
         ensure
             puts("Region => #{@aws_region},\nKey => #{key},\nPath => #{path}")
