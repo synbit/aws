@@ -18,5 +18,5 @@ ruby s3.rb -a upload -i your_profile -r your_region -b your_bucket_name -k your/
 #### Download from S3
 
 ```shell
-ruby s3.rb --action=download --aws-profile=your_profile --aws_region=your_region --s3-bucket=your_bucket_name --s3-key=name/of/s3-key --local-path=/download/location/goes/here/my.key
+ruby s3.rb --download --aws-profile=your_profile --aws_region=your_region --s3-key=your_bucket/key_prefix/your_key --local-path=/local/path/my.key
 ```
