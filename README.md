@@ -9,14 +9,14 @@ Collection of AWS related stuff
 
 POSIX-style options can be used:
 ```shell
-ruby s3.rb --action=upload --aws-profile=your_profile --aws-region=your_region --s3-bucket=your_bucket_name --s3-key=your/valuable/key --local-path=/full/path/to/local/resource
+ruby s3.rb --upload --aws-profile=your_profile --aws-region=your_region --s3-key=bucket-name/key-prefix/key --local-path=/local/path/my.key
 ```
 or, single letter options:
 ```shell
-ruby s3.rb -a upload -i your_profile -r your_region -b your_bucket_name -k your/valuable/key -p /full/path/to/local/resource
+ruby s3.rb -u -i your_profile -r your_region -k bucket-name/key-prefix/key -p /local/path/my.key
 ```
 #### Download from S3
 
 ```shell
-ruby s3.rb --download --aws-profile=your_profile --aws_region=your_region --s3-key=your_bucket/key_prefix/your_key --local-path=/local/path/my.key
+ruby s3.rb --download --aws-profile=your_profile --aws_region=your_region --s3-key=bucket-name/key-prefix/key --local-path=/local/path/my.key
 ```
