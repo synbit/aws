@@ -20,3 +20,8 @@ ruby s3.rb -u -i your_profile -r your_region -k bucket-name/key-prefix/key -p /l
 ```shell
 ruby s3.rb --download --aws-profile=your_profile --aws_region=your_region --s3-key=bucket-name/key-prefix/key --local-path=/local/path/my.key
 ```
+#### Create a bucket
+
+```shell
+ruby s3.rb --create-bucket --aws-profile=your_profile --aws-region=your_region --s3-bucket=bucket_name
+```
