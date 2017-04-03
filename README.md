@@ -25,3 +25,9 @@ ruby s3.rb --download --aws-profile=your_profile --aws_region=your_region --s3-k
 ```shell
 ruby s3.rb --create-bucket --aws-profile=your_profile --aws-region=your_region --s3-bucket=bucket_name
 ```
+### presigner.rb
+
+#### Generate presigned URLs for the specified S3 resources and set their expiry time
+```shell
+ruby presigner.rb --aws-profile=your_profile --aws-region=your_profile --s3-bucket=bucket_name --s3-key=key_name --expiry-time=3600
+```
