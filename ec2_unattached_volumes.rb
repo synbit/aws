@@ -20,6 +20,9 @@ OPTIONS
     --aws-region, -r
             The AWS region where you want to search for "available" EC2 volumes.
 
+    --help, -h
+            Print this help message
+
 AUTHORS / CONTRIBUTORS
     synbit
 
