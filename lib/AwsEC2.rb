@@ -9,7 +9,22 @@ class AwsEC2
         @aws_region = aws_region
     end
 
-# Public methods here
+    def get_unattached_volumes
+        res = []
+        ec2_client.describe_volumes({
+            filters: [
+                {
+                    name: "status",
+                    values: ["available"]
+                }
+            ]
+        }).volumes.map do |v|
+            res << v.volume_id
+        end
+
+        res
+
+    end
 
     private
     def load_profile
