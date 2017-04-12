@@ -37,7 +37,7 @@ opts = GetoptLong.new(
     [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
 )
 
-aws_profle, aws_region = nil
+aws_profile, aws_region = nil
 
 opts.each do |opt, arg|
     case opt
@@ -50,12 +50,12 @@ opts.each do |opt, arg|
     end
 end
 
-if (aws_profle.nil? or aws_region.nil?)
+if (aws_profile.nil? or aws_region.nil?)
     abort(help())
 end
 
 ec2 = AwsEC2.new(
-    aws_profile: aws_profile
+    aws_profile: aws_profile,
     aws_region: aws_region
 )
 
@@ -64,4 +64,6 @@ volumes = ec2.get_unattached_volumes
 if (volumes.count > 0)
     puts("Unattached volumes found: #{volumes.count}.")
     puts(volumes)
+else
+    puts("No unattached volumes found.")
 end
