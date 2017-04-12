@@ -1,4 +1,4 @@
-require 'aws-sdk'
+require './lib/AwsEC2'
 require 'getoptlong'
 
 def help
@@ -38,7 +38,6 @@ opts = GetoptLong.new(
 )
 
 aws_profle, aws_region = nil
-res = []
 
 opts.each do |opt, arg|
     case opt
@@ -55,22 +54,14 @@ if (aws_profle.nil? or aws_region.nil?)
     abort(help())
 end
 
-profile = Aws::SharedCredentials.new(
-    profile_name: aws_profile
+ec2 = AwsEC2.new(
+    aws_profile: aws_profile
+    aws_region: aws_region
 )
 
-ec2 = Aws::EC2::Client.new(
-    region: aws_region,
-    credentials: profile.credentials
-)
+volumes = ec2.get_unattached_volumes
 
-ec2.describe_volumes({
-    filters: [
-        {
-            name: "status",
-            values: ["available"]
-        }
-    ]
-}).volumes.map { |v| res << v.volume_id }
-
-puts(res)
+if (volumes.count > 0)
+    puts("Unattached volumes found: #{volumes.count}.")
+    puts(volumes)
+end
