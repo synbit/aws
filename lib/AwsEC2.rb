@@ -9,7 +9,7 @@ class AwsEC2
         @aws_region = aws_region
     end
 
-    def get_unattached_volumes
+    def get_orphaned_ebs_volumes
         res = []
         ec2_client.describe_volumes({
             filters: [
