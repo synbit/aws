@@ -26,6 +26,27 @@ class AwsEC2
 
     end
 
+    def get_non_elb_instances
+        all_instances = []
+        res = []
+        elbs = {}
+
+        ec2_client.describe_instances.reservations.map do |r|
+            r.instances.map do |i|
+                all_instances << i.instance_id
+            end
+        end
+
+        elb_client.describe_load_balancers.load_balancer_descriptions.map do |elb|
+            elbs[elb.load_balancer_name] = elb.instances.map do |i|
+                i.instance_id
+            end
+        end
+
+        all_instances - elbs.values.flatten
+
+    end
+
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
