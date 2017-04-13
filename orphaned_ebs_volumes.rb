@@ -59,7 +59,7 @@ ec2 = AwsEC2.new(
     aws_region: aws_region
 )
 
-volumes = ec2.get_unattached_volumes
+volumes = ec2.get_orphaned_ebs_volumes
 
 if (volumes.count > 0)
     puts("Unattached volumes found: #{volumes.count}.")
