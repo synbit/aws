@@ -29,6 +29,7 @@ AUTHORS / CONTRIBUTORS
 SOURCE
     https://github.com/synbit/aws
 EOF
+    exit(0)
 end
 
 opts = GetoptLong.new(
