@@ -93,5 +93,5 @@ url = s3_presigner.presigned_url(
     }
 )
 
-puts("Enyone with the following link will be able to download the resources specified:")
+puts("Anyone with the following link will be able to download the resources specified:")
 puts("S3 bucket: '#{s3_bucket}',\nS3 key: #{s3_key},\nExpires in: #{expiry_time} seconds,\nURL: #{url}")
