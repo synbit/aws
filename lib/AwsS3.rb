@@ -13,7 +13,6 @@ class AwsS3
     end
 
     def create_bucket(bucket_name, region)
-
         if (bucket_name.nil? || region.nil?)
             abort("Missing mandatory argument(s): bucket name, region.\nBucket creation aborted.")
         end
@@ -45,7 +44,6 @@ class AwsS3
     end
 
     def upload(path, key)
-
         if (key.nil? || path.nil?)
             abort("Missing mandatory argument(s): S3 key, local path.\nUpload aborted.")
         end
@@ -74,11 +72,9 @@ class AwsS3
         ensure
             puts("Region => #{@aws_region},\nKey => #{key},\nPath => #{path}")
         end
-
     end
 
     def download(key, path)
-
         if (key.nil? || path.nil?)
             abort("Missing mandatory argument(s): S3 key, local path.\nDownload aborted.")
         end
@@ -142,7 +138,6 @@ class AwsS3
         ensure
             puts("Region => #{@aws_region},\nKey => #{key},\nPath => #{path}")
         end
-
     end
 
     def presign_url(bucket, key, ttl)
