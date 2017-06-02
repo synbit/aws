@@ -2,14 +2,11 @@ class AwsS3
 
     require 'aws-sdk'
 
-    attr_accessor :aws_profile, :aws_region, :s3_bucket, :s3_key, :local_path
+    attr_accessor :aws_profile, :aws_region
 
-    def initialize(aws_profile: nil, aws_region: nil, s3_bucket: nil, s3_key: nil, local_path: nil)
+    def initialize(aws_profile: nil, aws_region: nil)
         @aws_profile = aws_profile
         @aws_region = aws_region
-        @s3_bucket = s3_bucket
-        @s3_key = s3_key
-        @local_path = local_path
     end
 
     def create_bucket(bucket_name, region)
