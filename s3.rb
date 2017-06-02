@@ -90,10 +90,7 @@ end
 
 s3 = AwsS3.new(
     aws_profile: aws_profile,
-    aws_region: aws_region,
-    s3_bucket: s3_bucket,
-    s3_key: s3_key,
-    local_path: local_path
+    aws_region: aws_region
 )
 
 begin
