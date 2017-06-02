@@ -145,6 +145,17 @@ class AwsS3
 
     end
 
+    def presign_url(bucket, key, ttl)
+        url = s3_presigner.presigned_url(
+            :get_object,
+            params = {
+                bucket: bucket,
+                key: key,
+                expires_in: ttl
+            }
+        )
+    end
+
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
@@ -158,6 +169,12 @@ class AwsS3
         s3 = Aws::S3::Client.new(
             region: @aws_region,
             credentials: profile.credentials
+        )
+    end
+
+    def s3_presigner
+        presigner = Aws::S3::Presigner.new(
+            client: s3_client
         )
     end
 
