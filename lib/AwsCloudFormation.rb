@@ -38,6 +38,44 @@ class AwsCloudFormation
         end
     end
 
+    def create_stack(stack, cftemplate_url, params = []) # add params and load it from disk
+        begin
+            cf_api.create_stack({
+                stack_name: stack,
+                template_url: cftemplate_url,
+                # parameters: [
+                #     {
+                #         parameter_key: "ParameterKey1",
+                #         parameter_value: "ParameterValue1"
+                #     },
+                #     {
+                #         parameter_key: "ParameterKey2",
+                #         parameter_value: "ParameterValue2"
+                #     }
+                # ],
+                resource_types: ["AWS::*"],
+                on_failure: "ROLLBACK",
+                tags: [
+                    {
+                        key: "Environment",
+                        value: "Development"
+                    },
+                    {
+                        key: "CreatedAt",
+                        value: Time.now.iso8601
+                    }
+                ]
+            })
+            cf_api.wait_until(:stack_create_complete)
+            puts("Stack created successfully.")
+        rescue StandardError => e
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
+            raise
+        ensure
+            puts("Stack => #{stack}")
+        end
+    end
+
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
