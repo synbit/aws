@@ -76,6 +76,44 @@ class AwsCloudFormation
         end
     end
 
+    def update_stack(stack, cftemplate_url, params)
+        begin
+            cf_api.update_stack({
+                stack_name: stack,
+                template_url: cftemplate_url,
+                # parameters: [
+                #     {
+                #         parameter_key: "ParameterKey",
+                #         parameter_value: "ParameterValue"
+                #     },
+                #     {
+                #         parameter_key: "ParameterKey",
+                #         parameter_value: "ParameterValue"
+                #     }
+                # ],
+                resource_types: ["AWS::*"],
+                on_failure: "ROLLBACK",
+                tags: [
+                    {
+                        key: "Environment",
+                        value: "Development"
+                    },
+                    {
+                        key: "UpdatedAt",
+                        value: Time.now.iso8601
+                    }
+                ]
+            })
+            cf_api.wait_until(:stack_update_complete)
+            puts("Stack update complete.")
+        rescue StandardError => e
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
+            raise
+        ensure
+            puts("Stack => #{stack}")
+        end
+    end
+
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
