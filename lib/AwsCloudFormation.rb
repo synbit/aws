@@ -9,6 +9,12 @@ class AwsCloudFormation
         @aws_region = aws_region
     end
 
+    def validate_template(cftemplate_url)
+        cf_api.validate_template({
+            template_url: cftemplate_url
+        })
+    end
+
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
