@@ -15,6 +15,29 @@ class AwsCloudFormation
         })
     end
 
+    def describe_stack(stack)
+        inner = {}
+        output = {}
+        begin
+            res = cf_api.describe_stacks({
+                stack_name: stack
+            })
+            res.stacks[0].tags.each do |tag|
+                inner[tag.key] = tag.value
+            end
+            output["Status"] = res.stacks[0].stack_status
+            output["Tags"] = inner
+            output
+        rescue Aws::CloudFormation::Errors::ValidationError => e
+            puts("Describe failed. Stack '#{stack}' does not exist.")
+        rescue StandardError => e
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
+            raise
+        ensure
+            puts("Stack => #{stack}")
+        end
+    end
+
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
