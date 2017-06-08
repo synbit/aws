@@ -35,16 +35,18 @@ end
 desc "Create a CloudFormation stack. Params: iam, region, stack, bucket."
 task :create_stack => :validate_template do
     puts("[#{Time.now.iso8601}] Building stack...")
+	params_hash = JSON.parse(File.read(params)
     url = s3.presign_url(bucket, "#{stack_name}/#{stack_name}.template", 60)
-    cf.create_stack(stack, url)
+    cf.create_stack(stack, url, params_hash)
     puts("[#{Time.now.iso8601}] Stack created successfully. Build finished.")
 end
 
 desc "Update an existing CloudFormation stack. Params: iam, region, stack, bucket"
 task :update_stack => :validate_template do
     puts("[#{Time.now.iso8601}] Stack update started...")
+	params_hash = JSON.parse(File.read(params)
     url = s3.presign_url(bucket, "#{stack_name}/#{stack_name}.template", 60)
-    cf.update_stack(stack, url)
+    cf.update_stack(stack, url, params_hash)
     puts("[#{Time.now.iso8601}] Stack updated finished.")
 end
 

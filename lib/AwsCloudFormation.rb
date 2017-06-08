@@ -38,21 +38,12 @@ class AwsCloudFormation
         end
     end
 
-    def create_stack(stack, cftemplate_url, params = []) # add params and load it from disk
+    def create_stack(stack, cftemplate_url, params)
         begin
             cf_api.create_stack({
                 stack_name: stack,
                 template_url: cftemplate_url,
-                # parameters: [
-                #     {
-                #         parameter_key: "ParameterKey1",
-                #         parameter_value: "ParameterValue1"
-                #     },
-                #     {
-                #         parameter_key: "ParameterKey2",
-                #         parameter_value: "ParameterValue2"
-                #     }
-                # ],
+                parameters: params,
                 resource_types: ["AWS::*"],
                 on_failure: "ROLLBACK",
                 tags: [
@@ -81,16 +72,7 @@ class AwsCloudFormation
             cf_api.update_stack({
                 stack_name: stack,
                 template_url: cftemplate_url,
-                # parameters: [
-                #     {
-                #         parameter_key: "ParameterKey",
-                #         parameter_value: "ParameterValue"
-                #     },
-                #     {
-                #         parameter_key: "ParameterKey",
-                #         parameter_value: "ParameterValue"
-                #     }
-                # ],
+                parameters: params,
                 resource_types: ["AWS::*"],
                 on_failure: "ROLLBACK",
                 tags: [
