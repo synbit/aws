@@ -1,6 +1,7 @@
 class AwsCloudFormation
     require 'aws-sdk'
     require 'time'
+    require 'colorize'
 
     attr_accessor :aws_profile, :aws_region
 
@@ -29,16 +30,17 @@ class AwsCloudFormation
             output["Tags"] = inner
             output
         rescue Aws::CloudFormation::Errors::ValidationError => e
-            puts("Describe failed. Stack '#{stack}' does not exist.")
+            puts("Stack '#{stack}' does not exist.".yellow)
+            return {}
         rescue StandardError => e
-            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}".red)
             raise
         ensure
-            puts("Stack => #{stack}")
+            puts("Stack => #{stack}".blue)
         end
     end
 
-    def create_stack(stack, cftemplate_url, params)
+    def create_stack(stack, cftemplate_url, params) # add params and load it from disk
         begin
             cf_api.create_stack({
                 stack_name: stack,
@@ -58,12 +60,12 @@ class AwsCloudFormation
                 ]
             })
             cf_api.wait_until(:stack_create_complete)
-            puts("Stack created successfully.")
+            puts("Stack created successfully.".green)
         rescue StandardError => e
-            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}".red)
             raise
         ensure
-            puts("Stack => #{stack}")
+            puts("Stack => #{stack}".blue)
         end
     end
 
@@ -74,7 +76,6 @@ class AwsCloudFormation
                 template_url: cftemplate_url,
                 parameters: params,
                 resource_types: ["AWS::*"],
-                on_failure: "ROLLBACK",
                 tags: [
                     {
                         key: "Environment",
@@ -87,12 +88,12 @@ class AwsCloudFormation
                 ]
             })
             cf_api.wait_until(:stack_update_complete)
-            puts("Stack update complete.")
+            puts("Stack update complete.".green)
         rescue StandardError => e
-            puts("Exception details:\n\t#{e.class}\n\t#{e.message}")
+            puts("Exception details:\n\t#{e.class}\n\t#{e.message}".yellow)
             raise
         ensure
-            puts("Stack => #{stack}")
+            puts("Stack => #{stack}".blue)
         end
     end
 
