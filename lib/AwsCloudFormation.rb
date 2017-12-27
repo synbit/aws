@@ -2,6 +2,9 @@ class AwsCloudFormation
     require 'aws-sdk'
     require 'time'
     require 'colorize'
+    require 'os'
+
+    Aws.use_bundled_cert! if OS.windows?
 
     attr_accessor :aws_profile, :aws_region
 
@@ -40,13 +43,13 @@ class AwsCloudFormation
         end
     end
 
-    def create_stack(stack, cftemplate_url, params) # add params and load it from disk
+    def create_stack(stack, cftemplate_url, params) # add parameter for environment tag
         begin
             cf_api.create_stack({
                 stack_name: stack,
                 template_url: cftemplate_url,
                 parameters: params,
-                resource_types: ["AWS::*"],
+                capabilities: ["CAPABILITY_IAM"],
                 on_failure: "ROLLBACK",
                 tags: [
                     {
@@ -59,8 +62,11 @@ class AwsCloudFormation
                     }
                 ]
             })
-            cf_api.wait_until(:stack_create_complete)
+            cf_api.wait_until(:stack_create_complete, stack_name: stack)
             puts("Stack created successfully.".green)
+        rescue Aws::CloudFormation::Errors::ServiceError => e
+            puts("CloudFormation Exception details:\n\t#{e.class}\n\t#{e.message}".red)
+            raise
         rescue StandardError => e
             puts("Exception details:\n\t#{e.class}\n\t#{e.message}".red)
             raise
@@ -69,13 +75,13 @@ class AwsCloudFormation
         end
     end
 
-    def update_stack(stack, cftemplate_url, params)
+    def update_stack(stack, cftemplate_url, params) # add parameter for environment tag
         begin
             cf_api.update_stack({
                 stack_name: stack,
                 template_url: cftemplate_url,
                 parameters: params,
-                resource_types: ["AWS::*"],
+                capabilities: ["CAPABILITY_IAM"],
                 tags: [
                     {
                         key: "Environment",
@@ -87,8 +93,15 @@ class AwsCloudFormation
                     }
                 ]
             })
-            cf_api.wait_until(:stack_update_complete)
+            cf_api.wait_until(:stack_update_complete, stack_name: stack)
             puts("Stack update complete.".green)
+        rescue Aws::CloudFormation::Errors::ServiceError => e
+            if e.message === "No updates are to be performed."
+                puts(e.message.yellow)
+            else
+                puts("CloudFormation Exception details:\n\t#{e.class}\n\t#{e.message}".red)
+                raise
+            end
         rescue StandardError => e
             puts("Exception details:\n\t#{e.class}\n\t#{e.message}".yellow)
             raise
@@ -100,7 +113,7 @@ class AwsCloudFormation
     private
     def load_profile
         profile = Aws::SharedCredentials.new(
-            profile_name: @aws_profile,
+            profile_name: profile.credentials,
             region: @aws_region
         )
     end
